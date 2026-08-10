@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#000000">
-  
+
   <title>Gani Pay</title>
 
-　<link rel="manifest" href="manifest.json">
-　<link rel="icon" type="image/png" href="icon-512.png?v=2">
-　<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=3">
-  
-　<meta name="apple-mobile-web-app-capable" content="yes">
-　<meta name="apple-mobile-web-app-title" content="Gani Pay">
-  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-512.png?v=3">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=3">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Gani Pay">
+
   <style>
     * {
       box-sizing: border-box;
@@ -47,11 +47,11 @@
       height: 52px;
       background: #fff;
       color: #000;
-      border-radius: 14px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 23px;
+      font-size: 22px;
       font-weight: 800;
     }
 
@@ -88,7 +88,8 @@
       margin-top: 5px;
     }
 
-    .new-button {
+    .new-button,
+    .save-button {
       width: 100%;
       border: 0;
       border-radius: 14px;
@@ -98,6 +99,9 @@
       font-weight: 700;
       padding: 17px;
       cursor: pointer;
+    }
+
+    .new-button {
       margin-bottom: 25px;
     }
 
@@ -119,6 +123,102 @@
       display: block;
       color: #555;
       margin-bottom: 6px;
+    }
+
+    .form-panel {
+      display: none;
+      margin-bottom: 24px;
+      background: #fafafa;
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .form-panel.open {
+      display: block;
+    }
+
+    .form-title {
+      font-size: 19px;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 13px 12px;
+      font-size: 16px;
+      background: #fff;
+      color: #111;
+    }
+
+    textarea {
+      min-height: 85px;
+      resize: vertical;
+    }
+
+    .optional-button {
+      width: 100%;
+      border: 1px solid #bbb;
+      border-radius: 10px;
+      background: #fff;
+      color: #111;
+      font-size: 15px;
+      padding: 12px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .optional-area {
+      display: none;
+    }
+
+    .optional-area.open {
+      display: block;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .cancel-button {
+      width: 100%;
+      border: 1px solid #aaa;
+      border-radius: 14px;
+      background: #fff;
+      color: #111;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 15px;
+      cursor: pointer;
+    }
+
+    .save-button {
+      padding: 15px;
+    }
+
+    .notice {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #777;
+      line-height: 1.5;
     }
   </style>
 </head>
@@ -143,9 +243,112 @@
       <div class="summary-amount">¥0</div>
     </div>
 
-    <button class="new-button">
+    <button class="new-button" id="openFormButton">
       ＋ 新しい請求を登録
     </button>
+
+    <div class="form-panel" id="formPanel">
+
+      <div class="form-title">
+        新しい請求
+      </div>
+
+      <div class="field">
+        <label for="requester">請求する人</label>
+        <select id="requester">
+          <option value="ケンジ">ケンジ</option>
+          <option value="リエ">リエ</option>
+          <option value="メイサ">メイサ</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="payer">支払う人</label>
+        <select id="payer">
+          <option value="ケンジ">ケンジ</option>
+          <option value="リエ">リエ</option>
+          <option value="メイサ">メイサ</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="content">内容</label>
+        <input
+          id="content"
+          type="text"
+          placeholder="例：洗剤、定期代、外食"
+        >
+      </div>
+
+      <div class="field">
+        <label for="amount">金額</label>
+        <input
+          id="amount"
+          type="number"
+          inputmode="numeric"
+          placeholder="例：1280"
+        >
+      </div>
+
+      <div class="field">
+        <label for="category">カテゴリー</label>
+        <select id="category">
+          <option value="">選択してください</option>
+          <option value="日用品">日用品</option>
+          <option value="食費">食費</option>
+          <option value="外食">外食</option>
+          <option value="衣服・美容">衣服・美容</option>
+          <option value="交通費">交通費</option>
+          <option value="教育費">教育費</option>
+          <option value="医療費">医療費</option>
+          <option value="旅行">旅行</option>
+          <option value="お小遣い">お小遣い</option>
+          <option value="クルマ">クルマ</option>
+          <option value="その他">その他</option>
+        </select>
+      </div>
+
+      <button class="optional-button" id="togglePaymentButton">
+        ＋ 支払い方法を指定する
+      </button>
+
+      <div class="optional-area" id="paymentArea">
+        <div class="field">
+          <label for="paymentMethod">支払い方法</label>
+          <select id="paymentMethod">
+            <option value="">指定なし</option>
+            <option value="銀行振込">銀行振込</option>
+            <option value="PayPay">PayPay</option>
+            <option value="楽天Pay">楽天Pay</option>
+            <option value="現金">現金</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="memo">メモ（任意）</label>
+        <textarea
+          id="memo"
+          placeholder="必要なときだけ入力"
+        ></textarea>
+      </div>
+
+      <div class="button-row">
+        <button class="cancel-button" id="cancelButton">
+          キャンセル
+        </button>
+
+        <button class="save-button" id="saveButton">
+          登録する
+        </button>
+      </div>
+
+      <div class="notice">
+        ※ 今回は入力画面までです。登録データの保存は次にSupabaseへ接続して実装します。
+      </div>
+
+    </div>
 
     <div class="section-title">
       請求一覧
@@ -159,6 +362,74 @@
   </main>
 
 </div>
+
+<script>
+  const openFormButton = document.getElementById("openFormButton");
+  const formPanel = document.getElementById("formPanel");
+  const cancelButton = document.getElementById("cancelButton");
+  const togglePaymentButton = document.getElementById("togglePaymentButton");
+  const paymentArea = document.getElementById("paymentArea");
+  const saveButton = document.getElementById("saveButton");
+
+  openFormButton.addEventListener("click", () => {
+    formPanel.classList.add("open");
+    openFormButton.style.display = "none";
+    window.scrollTo({
+      top: formPanel.offsetTop - 15,
+      behavior: "smooth"
+    });
+  });
+
+  cancelButton.addEventListener("click", () => {
+    formPanel.classList.remove("open");
+    openFormButton.style.display = "block";
+    paymentArea.classList.remove("open");
+    togglePaymentButton.textContent = "＋ 支払い方法を指定する";
+  });
+
+  togglePaymentButton.addEventListener("click", () => {
+    paymentArea.classList.toggle("open");
+
+    if (paymentArea.classList.contains("open")) {
+      togglePaymentButton.textContent = "－ 支払い方法を閉じる";
+    } else {
+      togglePaymentButton.textContent = "＋ 支払い方法を指定する";
+    }
+  });
+
+  saveButton.addEventListener("click", () => {
+    const requester = document.getElementById("requester").value;
+    const payer = document.getElementById("payer").value;
+    const content = document.getElementById("content").value.trim();
+    const amount = document.getElementById("amount").value;
+    const category = document.getElementById("category").value;
+
+    if (!content) {
+      alert("内容を入力してください。");
+      return;
+    }
+
+    if (!amount || Number(amount) <= 0) {
+      alert("金額を入力してください。");
+      return;
+    }
+
+    if (!category) {
+      alert("カテゴリーを選択してください。");
+      return;
+    }
+
+    alert(
+      "入力内容を確認しました。\n\n" +
+      "請求する人：" + requester + "\n" +
+      "支払う人：" + payer + "\n" +
+      "内容：" + content + "\n" +
+      "金額：" + Number(amount).toLocaleString("ja-JP") + "円\n" +
+      "カテゴリー：" + category + "\n\n" +
+      "次の工程で実際に保存できるようにします。"
+    );
+  });
+</script>
 
 </body>
 </html>
