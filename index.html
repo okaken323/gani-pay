@@ -8,8 +8,8 @@
   <title>Gani Pay</title>
 
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="icon-512.png?v=3">
-  <link rel="apple-touch-icon" sizes="180x180" href="/gani-pay/icon-180.png?v=9">
+  <link rel="icon" type="image/png" href="icon-512.png?v=8">
+  <link rel="apple-touch-icon" sizes="180x180" href="/gani-pay/icon-180.png?v=8">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Gani Pay">
@@ -22,115 +22,125 @@
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f5f5f5;
+      background: #f4f4f4;
       color: #111;
     }
 
     .app {
+      width: 100%;
       max-width: 520px;
-      margin: 0 auto;
       min-height: 100vh;
+      margin: 0 auto;
       background: #fff;
     }
+
+    /* =========================
+       ヘッダー
+       ========================= */
 
     header {
       background: #000;
       color: #fff;
-      padding: 22px 20px;
+      padding: 24px 22px;
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 18px;
     }
 
     .logo {
-      width: 64px;
-      height: 64px;
-      background: #fff;
-      color: #000;
-      border-radius: 12px;
+      width: 82px;
+      height: 82px;
+      flex-shrink: 0;
+      background: #000;
+      color: #fff;
+      border: 1px solid #555;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
+      font-size: 40px;
+      line-height: 1;
       font-weight: 800;
+      letter-spacing: -2px;
+    }
+
+    .header-text {
+      min-width: 0;
     }
 
     header h1 {
       margin: 0;
-      font-size: 25px;
+      font-size: 27px;
+      line-height: 1.15;
+      font-weight: 800;
     }
 
     header p {
-      margin: 3px 0 0;
-      font-size: 13px;
-      color: #bbb;
+      margin: 7px 0 0;
+      font-size: 14px;
+      color: #ccc;
+      white-space: nowrap;
     }
+
+    /* =========================
+       メイン
+       ========================= */
 
     main {
       padding: 20px;
     }
 
     .summary {
-      background: #f2f2f2;
-      border-radius: 16px;
-      padding: 20px;
+      background: #f3f3f3;
+      border-radius: 17px;
+      padding: 22px;
       margin-bottom: 18px;
     }
 
     .summary-label {
-      font-size: 14px;
-      color: #666;
+      font-size: 15px;
+      color: #555;
+      margin-bottom: 6px;
     }
 
     .summary-amount {
-      font-size: 34px;
+      font-size: 38px;
       font-weight: 800;
-      margin-top: 5px;
+      line-height: 1.1;
     }
 
-    .new-button,
-    .save-button {
+    /* =========================
+       ボタン
+       ========================= */
+
+    button {
+      font-family: inherit;
+    }
+
+    .new-button {
       width: 100%;
       border: 0;
       border-radius: 14px;
       background: #000;
       color: #fff;
+      padding: 17px 14px;
+      margin-bottom: 24px;
       font-size: 17px;
-      font-weight: 700;
-      padding: 17px;
+      font-weight: 800;
       cursor: pointer;
     }
 
-    .new-button {
-      margin-bottom: 25px;
-    }
-
-    .section-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 45px 20px;
-      color: #888;
-      background: #fafafa;
-      border-radius: 16px;
-    }
-
-    .empty strong {
-      display: block;
-      color: #555;
-      margin-bottom: 6px;
-    }
+    /* =========================
+       入力フォーム
+       ========================= */
 
     .form-panel {
       display: none;
-      margin-bottom: 24px;
       background: #fafafa;
-      border-radius: 16px;
+      border: 1px solid #eee;
+      border-radius: 17px;
       padding: 18px;
+      margin-bottom: 26px;
     }
 
     .form-panel.open {
@@ -138,9 +148,15 @@
     }
 
     .form-title {
-      font-size: 19px;
-      font-weight: 800;
       margin-bottom: 18px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
 
     .field {
@@ -149,76 +165,165 @@
 
     .field label {
       display: block;
+      margin-bottom: 7px;
       font-size: 14px;
       font-weight: 700;
-      margin-bottom: 7px;
     }
 
     input,
     select,
     textarea {
       width: 100%;
+      min-width: 0;
       border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 13px 12px;
-      font-size: 16px;
+      border-radius: 11px;
       background: #fff;
       color: #111;
+      padding: 13px 12px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #777;
     }
 
     textarea {
-      min-height: 85px;
+      min-height: 90px;
       resize: vertical;
     }
 
     .optional-button {
       width: 100%;
-      border: 1px solid #bbb;
-      border-radius: 10px;
+      border: 1px solid #ccc;
+      border-radius: 11px;
       background: #fff;
       color: #111;
+      padding: 13px 12px;
+      margin-bottom: 12px;
       font-size: 15px;
-      padding: 12px;
+      font-weight: 700;
+      text-align: left;
       cursor: pointer;
-      margin-bottom: 10px;
     }
 
     .optional-area {
       display: none;
+      padding: 14px;
+      margin-bottom: 16px;
+      background: #f4f4f4;
+      border-radius: 13px;
     }
 
     .optional-area.open {
       display: block;
     }
 
+    .optional-area .field {
+      margin-bottom: 0;
+    }
+
     .button-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 18px;
+      gap: 12px;
+      margin-top: 4px;
     }
 
-    .cancel-button {
+    .cancel-button,
+    .save-button {
       width: 100%;
-      border: 1px solid #aaa;
-      border-radius: 14px;
-      background: #fff;
-      color: #111;
+      padding: 15px 12px;
+      border-radius: 13px;
       font-size: 16px;
-      font-weight: 700;
-      padding: 15px;
+      font-weight: 800;
       cursor: pointer;
     }
 
+    .cancel-button {
+      border: 1px solid #888;
+      background: #fff;
+      color: #111;
+    }
+
     .save-button {
-      padding: 15px;
+      border: 1px solid #000;
+      background: #000;
+      color: #fff;
     }
 
     .notice {
-      margin-top: 12px;
-      font-size: 12px;
+      margin-top: 15px;
       color: #777;
-      line-height: 1.5;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    /* =========================
+       請求一覧
+       ========================= */
+
+    .section-title {
+      margin: 8px 0 12px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .empty {
+      background: #f7f7f7;
+      border-radius: 17px;
+      padding: 44px 20px;
+      text-align: center;
+      color: #777;
+      line-height: 1.7;
+    }
+
+    .empty strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #444;
+      font-size: 16px;
+    }
+
+    /* =========================
+       スマホ微調整
+       ========================= */
+
+    @media (max-width: 390px) {
+      header {
+        padding: 20px 17px;
+        gap: 14px;
+      }
+
+      .logo {
+        width: 72px;
+        height: 72px;
+        font-size: 35px;
+      }
+
+      header h1 {
+        font-size: 24px;
+      }
+
+      header p {
+        font-size: 12px;
+      }
+
+      main {
+        padding: 16px;
+      }
+
+      .two-column {
+        gap: 9px;
+      }
+
+      input,
+      select {
+        padding-left: 10px;
+        padding-right: 8px;
+      }
     }
   </style>
 </head>
@@ -230,7 +335,7 @@
   <header>
     <div class="logo">GP</div>
 
-    <div>
+    <div class="header-text">
       <h1>Gani Pay</h1>
       <p>家族のお金をかんたん管理</p>
     </div>
@@ -253,41 +358,50 @@
         新しい請求
       </div>
 
-      <div class="field">
-        <label for="requester">請求する人</label>
-        <select id="requester">
-          <option value="ケンジ">謙二</option>
-          <option value="リエ">理恵</option>
-          <option value="メイサ">メイサ</option>
-        </select>
+      <div class="two-column">
+
+        <div class="field">
+          <label for="requester">請求する人</label>
+          <select id="requester">
+            <option value="謙二">謙二</option>
+            <option value="理恵">理恵</option>
+            <option value="メイサ">メイサ</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="payer">支払う人</label>
+          <select id="payer">
+            <option value="謙二">謙二</option>
+            <option value="理恵">理恵</option>
+            <option value="メイサ">メイサ</option>
+          </select>
+        </div>
+
       </div>
 
-      <div class="field">
-        <label for="payer">支払う人</label>
-        <select id="payer">
-          <option value="ケンジ">謙二</option>
-          <option value="リエ">理恵</option>
-          <option value="メイサ">メイサ</option>
-        </select>
-      </div>
+      <div class="two-column">
 
-      <div class="field">
-        <label for="content">内容</label>
-        <input
-          id="content"
-          type="text"
-          placeholder="例：洗剤、定期代、外食"
-        >
-      </div>
+        <div class="field">
+          <label for="content">内容</label>
+          <input
+            id="content"
+            type="text"
+            placeholder="例：洗剤、定期代"
+          >
+        </div>
 
-      <div class="field">
-        <label for="amount">金額</label>
-        <input
-          id="amount"
-          type="number"
-          inputmode="numeric"
-          placeholder="例：1280"
-        >
+        <div class="field">
+          <label for="amount">金額</label>
+          <input
+            id="amount"
+            type="number"
+            inputmode="numeric"
+            min="1"
+            placeholder="例：1280"
+          >
+        </div>
+
       </div>
 
       <div class="field">
@@ -309,12 +423,14 @@
       </div>
 
       <button class="optional-button" id="togglePaymentButton">
-        ＋ 支払い方法を指定する
+        ＋ 希望支払い方法を指定する
       </button>
 
       <div class="optional-area" id="paymentArea">
+
         <div class="field">
           <label for="paymentMethod">希望支払い方法</label>
+
           <select id="paymentMethod">
             <option value="">指定なし</option>
             <option value="銀行振込">銀行振込</option>
@@ -323,10 +439,12 @@
             <option value="その他">その他</option>
           </select>
         </div>
+
       </div>
 
       <div class="field">
         <label for="memo">メモ（任意）</label>
+
         <textarea
           id="memo"
           placeholder="必要なときだけ入力"
@@ -334,6 +452,7 @@
       </div>
 
       <div class="button-row">
+
         <button class="cancel-button" id="cancelButton">
           キャンセル
         </button>
@@ -341,10 +460,11 @@
         <button class="save-button" id="saveButton">
           登録する
         </button>
+
       </div>
 
       <div class="notice">
-        ※ 今回は入力画面までです。登録データの保存は次にSupabaseへ接続して実装します。
+        ※ 現在は入力画面までです。次にSupabaseへ接続して、登録データを家族で共有できるようにします。
       </div>
 
     </div>
@@ -363,45 +483,92 @@
 </div>
 
 <script>
-  const openFormButton = document.getElementById("openFormButton");
-  const formPanel = document.getElementById("formPanel");
-  const cancelButton = document.getElementById("cancelButton");
-  const togglePaymentButton = document.getElementById("togglePaymentButton");
-  const paymentArea = document.getElementById("paymentArea");
-  const saveButton = document.getElementById("saveButton");
+  const openFormButton =
+    document.getElementById("openFormButton");
+
+  const formPanel =
+    document.getElementById("formPanel");
+
+  const cancelButton =
+    document.getElementById("cancelButton");
+
+  const togglePaymentButton =
+    document.getElementById("togglePaymentButton");
+
+  const paymentArea =
+    document.getElementById("paymentArea");
+
+  const saveButton =
+    document.getElementById("saveButton");
 
   openFormButton.addEventListener("click", () => {
+
     formPanel.classList.add("open");
+
     openFormButton.style.display = "none";
-    window.scrollTo({
-      top: formPanel.offsetTop - 15,
-      behavior: "smooth"
-    });
+
+    setTimeout(() => {
+      formPanel.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 50);
+
   });
 
   cancelButton.addEventListener("click", () => {
+
     formPanel.classList.remove("open");
+
     openFormButton.style.display = "block";
+
     paymentArea.classList.remove("open");
-    togglePaymentButton.textContent = "＋ 支払い方法を指定する";
+
+    togglePaymentButton.textContent =
+      "＋ 希望支払い方法を指定する";
+
   });
 
   togglePaymentButton.addEventListener("click", () => {
+
     paymentArea.classList.toggle("open");
 
     if (paymentArea.classList.contains("open")) {
-      togglePaymentButton.textContent = "－ 支払い方法を閉じる";
+
+      togglePaymentButton.textContent =
+        "－ 希望支払い方法を閉じる";
+
     } else {
-      togglePaymentButton.textContent = "＋ 支払い方法を指定する";
+
+      togglePaymentButton.textContent =
+        "＋ 希望支払い方法を指定する";
+
     }
+
   });
 
   saveButton.addEventListener("click", () => {
-    const requester = document.getElementById("requester").value;
-    const payer = document.getElementById("payer").value;
-    const content = document.getElementById("content").value.trim();
-    const amount = document.getElementById("amount").value;
-    const category = document.getElementById("category").value;
+
+    const requester =
+      document.getElementById("requester").value;
+
+    const payer =
+      document.getElementById("payer").value;
+
+    const content =
+      document.getElementById("content").value.trim();
+
+    const amount =
+      document.getElementById("amount").value;
+
+    const category =
+      document.getElementById("category").value;
+
+    const paymentMethod =
+      document.getElementById("paymentMethod").value;
+
+    const memo =
+      document.getElementById("memo").value.trim();
 
     if (!content) {
       alert("内容を入力してください。");
@@ -418,15 +585,33 @@
       return;
     }
 
-    alert(
+    let message =
       "入力内容を確認しました。\n\n" +
       "請求する人：" + requester + "\n" +
       "支払う人：" + payer + "\n" +
       "内容：" + content + "\n" +
-      "金額：" + Number(amount).toLocaleString("ja-JP") + "円\n" +
-      "カテゴリー：" + category + "\n\n" +
-      "次の工程で実際に保存できるようにします。"
-    );
+      "金額：" +
+      Number(amount).toLocaleString("ja-JP") +
+      "円\n" +
+      "カテゴリー：" + category;
+
+    if (paymentMethod) {
+      message +=
+        "\n希望支払い方法：" +
+        paymentMethod;
+    }
+
+    if (memo) {
+      message +=
+        "\nメモ：" +
+        memo;
+    }
+
+    message +=
+      "\n\n次の工程でSupabaseへ保存できるようにします。";
+
+    alert(message);
+
   });
 </script>
 
