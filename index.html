@@ -8,8 +8,9 @@
   <title>Gani Pay</title>
 
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="icon-512.png?v=8">
-  <link rel="apple-touch-icon" sizes="180x180" href="/gani-pay/icon-180.png?v=12">
+  <link rel="icon" type="image/png" href="icon-512.png?v=12">
+  <link rel="apple-touch-icon" sizes="180x180"
+        href="/gani-pay/icon-180.png?v=12">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Gani Pay">
@@ -33,10 +34,6 @@
       margin: 0 auto;
       background: #fff;
     }
-
-    /* =========================
-       ヘッダー
-       ========================= */
 
     header {
       background: #000;
@@ -64,14 +61,9 @@
       letter-spacing: -2px;
     }
 
-    .header-text {
-      min-width: 0;
-    }
-
     header h1 {
       margin: 0;
       font-size: 27px;
-      line-height: 1.15;
       font-weight: 800;
     }
 
@@ -81,10 +73,6 @@
       color: #ccc;
       white-space: nowrap;
     }
-
-    /* =========================
-       メイン
-       ========================= */
 
     main {
       padding: 20px;
@@ -106,12 +94,7 @@
     .summary-amount {
       font-size: 38px;
       font-weight: 800;
-      line-height: 1.1;
     }
-
-    /* =========================
-       ボタン
-       ========================= */
 
     button {
       font-family: inherit;
@@ -129,10 +112,6 @@
       font-weight: 800;
       cursor: pointer;
     }
-
-    /* =========================
-       入力フォーム
-       ========================= */
 
     .form-panel {
       display: none;
@@ -181,13 +160,6 @@
       color: #111;
       padding: 13px 12px;
       font-size: 16px;
-      outline: none;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: #777;
     }
 
     textarea {
@@ -195,41 +167,10 @@
       resize: vertical;
     }
 
-    .optional-button {
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 11px;
-      background: #fff;
-      color: #111;
-      padding: 13px 12px;
-      margin-bottom: 12px;
-      font-size: 15px;
-      font-weight: 700;
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .optional-area {
-      display: none;
-      padding: 14px;
-      margin-bottom: 16px;
-      background: #f4f4f4;
-      border-radius: 13px;
-    }
-
-    .optional-area.open {
-      display: block;
-    }
-
-    .optional-area .field {
-      margin-bottom: 0;
-    }
-
     .button-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-top: 4px;
     }
 
     .cancel-button,
@@ -245,7 +186,6 @@
     .cancel-button {
       border: 1px solid #888;
       background: #fff;
-      color: #111;
     }
 
     .save-button {
@@ -254,16 +194,9 @@
       color: #fff;
     }
 
-    .notice {
-      margin-top: 15px;
-      color: #777;
-      font-size: 12px;
-      line-height: 1.55;
+    .save-button:disabled {
+      opacity: 0.5;
     }
-
-    /* =========================
-       請求一覧
-       ========================= */
 
     .section-title {
       margin: 8px 0 12px;
@@ -274,22 +207,53 @@
     .empty {
       background: #f7f7f7;
       border-radius: 17px;
-      padding: 44px 20px;
-      text-align: center;
+      padding: 30px 20px;
       color: #777;
-      line-height: 1.7;
     }
 
-    .empty strong {
+    .empty-message {
+      text-align: center;
+      padding: 18px 0;
+    }
+
+    .empty-message strong {
       display: block;
-      margin-bottom: 4px;
       color: #444;
-      font-size: 16px;
+      margin-bottom: 5px;
     }
 
-    /* =========================
-       スマホ微調整
-       ========================= */
+    .payment-item {
+      text-align: left;
+      padding: 14px 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .payment-item:last-child {
+      border-bottom: 0;
+    }
+
+    .payment-title {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .payment-main {
+      margin-top: 5px;
+      font-size: 15px;
+      color: #222;
+    }
+
+    .payment-sub {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #777;
+    }
+
+    .error-message {
+      color: #b00020;
+      text-align: center;
+      line-height: 1.6;
+    }
 
     @media (max-width: 390px) {
       header {
@@ -318,12 +282,6 @@
       .two-column {
         gap: 9px;
       }
-
-      input,
-      select {
-        padding-left: 10px;
-        padding-right: 8px;
-      }
     }
   </style>
 </head>
@@ -335,7 +293,7 @@
   <header>
     <div class="logo">GP</div>
 
-    <div class="header-text">
+    <div>
       <h1>Gani Pay</h1>
       <p>家族のお金をかんたん管理</p>
     </div>
@@ -345,7 +303,7 @@
 
     <div class="summary">
       <div class="summary-label">現在の請求中</div>
-      <div class="summary-amount">¥0</div>
+      <div class="summary-amount" id="summaryAmount">¥0</div>
     </div>
 
     <button class="new-button" id="openFormButton">
@@ -384,28 +342,23 @@
 
         <div class="field">
           <label for="content">内容</label>
-          <input
-            id="content"
-            type="text"
-            placeholder="例：洗剤、定期代"
-          >
+          <input id="content" type="text"
+                 placeholder="例：洗剤、定期代">
         </div>
 
         <div class="field">
           <label for="amount">金額</label>
-          <input
-            id="amount"
-            type="number"
-            inputmode="numeric"
-            min="1"
-            placeholder="例：1280"
-          >
+          <input id="amount" type="number"
+                 inputmode="numeric"
+                 min="1"
+                 placeholder="例：1280">
         </div>
 
       </div>
 
       <div class="field">
         <label for="category">カテゴリー</label>
+
         <select id="category">
           <option value="">選択してください</option>
           <option value="日用品">日用品</option>
@@ -422,41 +375,39 @@
         </select>
       </div>
 
-　　　　<div class="field">
- 　　　　 <label for="paymentMethod">希望支払い方法</label>
+      <div class="field">
+        <label for="paymentMethod">希望支払い方法</label>
 
-　　　　  <select id="paymentMethod">
-    　　　<option value="">指定なし</option>
-    　　　<option value="銀行振込">銀行振込</option>
-   　　　 <option value="PayPay">PayPay</option>
-    　　　<option value="現金">現金</option>
-   　　　 <option value="その他">その他</option>
-  　　　</select>
-　　　</div>
+        <select id="paymentMethod">
+          <option value="">指定なし</option>
+          <option value="銀行振込">銀行振込</option>
+          <option value="PayPay">PayPay</option>
+          <option value="現金">現金</option>
+          <option value="その他">その他</option>
+        </select>
+      </div>
 
       <div class="field">
         <label for="memo">メモ（任意）</label>
 
-        <textarea
-          id="memo"
-          placeholder="必要なときだけ入力"
-        ></textarea>
+        <textarea id="memo"
+                  placeholder="必要なときだけ入力"></textarea>
       </div>
 
       <div class="button-row">
 
-        <button class="cancel-button" id="cancelButton">
+        <button class="cancel-button"
+                id="cancelButton"
+                type="button">
           キャンセル
         </button>
 
-        <button class="save-button" id="saveButton">
+        <button class="save-button"
+                id="saveButton"
+                type="button">
           登録する
         </button>
 
-      </div>
-
-      <div class="notice">
-        ※ 現在は入力画面までです。次にSupabaseへ接続して、登録データを家族で共有できるようにします。
       </div>
 
     </div>
@@ -465,19 +416,22 @@
       請求一覧
     </div>
 
-    <div class="empty">
-      <strong>まだ請求はありません</strong>
-      「新しい請求を登録」から追加できます
+    <div class="empty" id="paymentList">
+      <div class="empty-message">
+        <strong>読み込み中...</strong>
+      </div>
     </div>
 
   </main>
-
 </div>
 
 <script>
-<script>
-  const SUPABASE_URL = "https://tspmrlaslxgynfspchgz.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_SMiHRlZzMWCZgQ7Msqkgjg_k1olv68o";
+  const SUPABASE_URL =
+    "https://tspmrlaslxgynfspchgz.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_SMiHRlZzMWCZgQ7Msqkgjg_k1olv68o";
+
 
   const openFormButton =
     document.getElementById("openFormButton");
@@ -492,35 +446,36 @@
     document.getElementById("saveButton");
 
   const summaryAmount =
-    document.querySelector(".summary-amount");
+    document.getElementById("summaryAmount");
 
-  const emptyArea =
-    document.querySelector(".empty");
-
-  const sectionTitle =
-    document.querySelector(".section-title");
+  const paymentList =
+    document.getElementById("paymentList");
 
 
-  openFormButton.addEventListener("click", () => {
-    formPanel.classList.add("open");
-    openFormButton.style.display = "none";
-
-    setTimeout(() => {
-      formPanel.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-    }, 50);
-  });
+  openFormButton.addEventListener(
+    "click",
+    function () {
+      formPanel.classList.add("open");
+      openFormButton.style.display = "none";
+    }
+  );
 
 
-  cancelButton.addEventListener("click", () => {
-    formPanel.classList.remove("open");
-    openFormButton.style.display = "block";
-  });
+  cancelButton.addEventListener(
+    "click",
+    function () {
+      formPanel.classList.remove("open");
+      openFormButton.style.display = "block";
+    }
+  );
 
 
   async function loadPayments() {
+
+    paymentList.innerHTML =
+      '<div class="empty-message">' +
+      '<strong>読み込み中...</strong>' +
+      '</div>';
 
     try {
 
@@ -528,30 +483,45 @@
         SUPABASE_URL +
         "/rest/v1/payments?select=*&order=created_at.desc",
         {
+          method: "GET",
           headers: {
             "apikey": SUPABASE_KEY
           }
         }
       );
 
+
       if (!response.ok) {
+
+        const text = await response.text();
+
         throw new Error(
-          "読み込みエラー: " + response.status
+          response.status +
+          " " +
+          text
         );
       }
 
-      const payments = await response.json();
+
+      const payments =
+        await response.json();
+
 
       renderPayments(payments);
 
+
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "読み込みエラー:",
+        error
+      );
 
-      emptyArea.innerHTML =
-        "<strong>データを読み込めませんでした</strong>" +
-        "通信状態を確認してください";
-
+      paymentList.innerHTML =
+        '<div class="error-message">' +
+        '<strong>データを読み込めませんでした</strong><br>' +
+        'Supabase接続を確認してください' +
+        '</div>';
     }
   }
 
@@ -559,150 +529,253 @@
   function renderPayments(payments) {
 
     const activePayments =
-      payments.filter(payment =>
-        payment.status !== "送金済み" &&
-        payment.status !== "現金渡し済み"
-      );
+      payments.filter(function (payment) {
+
+        return (
+          payment.status !== "送金済み" &&
+          payment.status !== "現金渡し済み"
+        );
+
+      });
+
 
     const total =
       activePayments.reduce(
-        (sum, payment) =>
-          sum + Number(payment.amount || 0),
+        function (sum, payment) {
+
+          return (
+            sum +
+            Number(payment.amount || 0)
+          );
+
+        },
         0
       );
 
+
     summaryAmount.textContent =
-      "¥" + total.toLocaleString("ja-JP");
+      "¥" +
+      total.toLocaleString("ja-JP");
 
 
     if (payments.length === 0) {
 
-      emptyArea.innerHTML =
-        "<strong>まだ請求はありません</strong>" +
-        "「新しい請求を登録」から追加できます";
+      paymentList.innerHTML =
+        '<div class="empty-message">' +
+        '<strong>まだ請求はありません</strong>' +
+        '「新しい請求を登録」から追加できます' +
+        '</div>';
 
       return;
     }
 
 
-    emptyArea.innerHTML = "";
+    paymentList.innerHTML = "";
 
-    payments.forEach(payment => {
 
-      const item =
-        document.createElement("div");
+    payments.forEach(
+      function (payment) {
 
-      item.style.textAlign = "left";
-      item.style.padding = "14px 0";
-      item.style.borderBottom =
-        "1px solid #ddd";
+        const item =
+          document.createElement("div");
 
-      const paymentMethodText =
-        payment.payment_method
-          ? "／" + payment.payment_method
-          : "";
+        item.className =
+          "payment-item";
 
-      item.innerHTML =
-        "<strong>" +
-        payment.content +
-        "</strong>" +
-        "<div style='margin-top:5px'>" +
-        "¥" +
-        Number(payment.amount)
-          .toLocaleString("ja-JP") +
-        "　" +
-        payment.requester +
-        " → " +
-        payment.payer +
-        "</div>" +
-        "<div style='margin-top:4px;font-size:13px;color:#777'>" +
-        payment.category +
-        paymentMethodText +
-        "／" +
-        (payment.status || "請求中") +
-        "</div>";
 
-      emptyArea.appendChild(item);
+        const paymentMethodText =
+          payment.payment_method
+            ? "／" +
+              payment.payment_method
+            : "";
 
-    });
+
+        const memoText =
+          payment.memo
+            ? "<div class='payment-sub'>" +
+              "メモ：" +
+              escapeHtml(payment.memo) +
+              "</div>"
+            : "";
+
+
+        item.innerHTML =
+          "<div class='payment-title'>" +
+          escapeHtml(payment.content || "") +
+          "</div>" +
+
+          "<div class='payment-main'>" +
+
+          "¥" +
+          Number(payment.amount || 0)
+            .toLocaleString("ja-JP") +
+
+          "　" +
+
+          escapeHtml(payment.requester || "") +
+
+          " → " +
+
+          escapeHtml(payment.payer || "") +
+
+          "</div>" +
+
+          "<div class='payment-sub'>" +
+
+          escapeHtml(payment.category || "") +
+
+          paymentMethodText +
+
+          "／" +
+
+          escapeHtml(
+            payment.status ||
+            "請求中"
+          ) +
+
+          "</div>" +
+
+          memoText;
+
+
+        paymentList.appendChild(item);
+
+      }
+    );
+  }
+
+
+  function escapeHtml(value) {
+
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
 
   saveButton.addEventListener(
     "click",
-    async () => {
+    async function () {
 
       const requester =
-        document.getElementById("requester").value;
+        document.getElementById(
+          "requester"
+        ).value;
 
       const payer =
-        document.getElementById("payer").value;
+        document.getElementById(
+          "payer"
+        ).value;
 
       const content =
-        document.getElementById("content")
-          .value.trim();
+        document.getElementById(
+          "content"
+        ).value.trim();
 
       const amount =
-        document.getElementById("amount").value;
+        document.getElementById(
+          "amount"
+        ).value;
 
       const category =
-        document.getElementById("category").value;
+        document.getElementById(
+          "category"
+        ).value;
 
       const paymentMethod =
-        document.getElementById("paymentMethod")
-          .value;
+        document.getElementById(
+          "paymentMethod"
+        ).value;
 
       const memo =
-        document.getElementById("memo")
-          .value.trim();
+        document.getElementById(
+          "memo"
+        ).value.trim();
 
 
       if (!content) {
-        alert("内容を入力してください。");
+        alert(
+          "内容を入力してください。"
+        );
         return;
       }
 
-      if (!amount || Number(amount) <= 0) {
-        alert("金額を入力してください。");
+
+      if (
+        !amount ||
+        Number(amount) <= 0
+      ) {
+        alert(
+          "金額を入力してください。"
+        );
         return;
       }
+
 
       if (!category) {
-        alert("カテゴリーを選択してください。");
+        alert(
+          "カテゴリーを選択してください。"
+        );
         return;
       }
 
 
       saveButton.disabled = true;
-      saveButton.textContent = "登録中...";
+      saveButton.textContent =
+        "登録中...";
 
 
       try {
 
-        const response = await fetch(
-          SUPABASE_URL + "/rest/v1/payments",
-          {
-            method: "POST",
+        const response =
+          await fetch(
+            SUPABASE_URL +
+            "/rest/v1/payments",
+            {
+              method: "POST",
 
-            headers: {
-              "apikey": SUPABASE_KEY,
-              "Content-Type": "application/json",
-              "Prefer": "return=minimal"
-            },
+              headers: {
+                "apikey":
+                  SUPABASE_KEY,
 
-            body: JSON.stringify({
-              requester: requester,
-              payer: payer,
-              content: content,
-              amount: Number(amount),
-              category: category,
-              payment_method:
-                paymentMethod || null,
-              memo: memo || null,
-              status: "請求中"
-            })
-          }
-        );
+                "Content-Type":
+                  "application/json",
+
+                "Prefer":
+                  "return=minimal"
+              },
+
+              body:
+                JSON.stringify({
+                  requester:
+                    requester,
+
+                  payer:
+                    payer,
+
+                  content:
+                    content,
+
+                  amount:
+                    Number(amount),
+
+                  category:
+                    category,
+
+                  payment_method:
+                    paymentMethod || null,
+
+                  memo:
+                    memo || null,
+
+                  status:
+                    "請求中"
+                })
+            }
+          );
 
 
         if (!response.ok) {
@@ -710,31 +783,43 @@
           const errorText =
             await response.text();
 
-          throw new Error(errorText);
-
+          throw new Error(
+            response.status +
+            " " +
+            errorText
+          );
         }
 
 
-        alert("請求を登録しました。");
+        alert(
+          "請求を登録しました。"
+        );
 
 
-        document.getElementById("content")
-          .value = "";
+        document.getElementById(
+          "content"
+        ).value = "";
 
-        document.getElementById("amount")
-          .value = "";
+        document.getElementById(
+          "amount"
+        ).value = "";
 
-        document.getElementById("category")
-          .value = "";
+        document.getElementById(
+          "category"
+        ).value = "";
 
-        document.getElementById("paymentMethod")
-          .value = "";
+        document.getElementById(
+          "paymentMethod"
+        ).value = "";
 
-        document.getElementById("memo")
-          .value = "";
+        document.getElementById(
+          "memo"
+        ).value = "";
 
 
-        formPanel.classList.remove("open");
+        formPanel.classList.remove(
+          "open"
+        );
 
         openFormButton.style.display =
           "block";
@@ -745,18 +830,23 @@
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "登録エラー:",
+          error
+        );
 
         alert(
           "登録できませんでした。\n" +
-          "Supabase設定を確認してください。"
+          "Supabase接続を確認してください。"
         );
+
 
       } finally {
 
         saveButton.disabled = false;
-        saveButton.textContent = "登録する";
 
+        saveButton.textContent =
+          "登録する";
       }
 
     }
@@ -765,7 +855,6 @@
 
   loadPayments();
 
-</script>
 </script>
 
 </body>
