@@ -585,7 +585,7 @@
         await fetch(
 
           SUPABASE_URL +
-          "/rest/v1/payments?select=*&order=created_at.desc",
+          "/rest/v1/payments?select=*&order=created_at.asc",
 
           {
             method: "GET",
