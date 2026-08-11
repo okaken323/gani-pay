@@ -9,7 +9,7 @@
 
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="icon-512.png?v=8">
-  <link rel="apple-touch-icon" sizes="180x180" href="/gani-pay/icon-180.png?v=10">
+  <link rel="apple-touch-icon" sizes="180x180" href="/gani-pay/icon-180.png?v=11">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Gani Pay">
@@ -422,25 +422,17 @@
         </select>
       </div>
 
-      <button class="optional-button" id="togglePaymentButton">
-        ＋ 希望支払い方法を指定する
-      </button>
+　　　　<div class="field">
+ 　　　　 <label for="paymentMethod">希望支払い方法</label>
 
-      <div class="optional-area" id="paymentArea">
-
-        <div class="field">
-          <label for="paymentMethod">希望支払い方法</label>
-
-          <select id="paymentMethod">
-            <option value="">指定なし</option>
-            <option value="銀行振込">銀行振込</option>
-            <option value="PayPay">PayPay</option>
-            <option value="現金">現金</option>
-            <option value="その他">その他</option>
-          </select>
-        </div>
-
-      </div>
+　　　　  <select id="paymentMethod">
+    　　　<option value="">指定なし</option>
+    　　　<option value="銀行振込">銀行振込</option>
+   　　　 <option value="PayPay">PayPay</option>
+    　　　<option value="現金">現金</option>
+   　　　 <option value="その他">その他</option>
+  　　　</select>
+　　　</div>
 
       <div class="field">
         <label for="memo">メモ（任意）</label>
