@@ -475,6 +475,10 @@
 </div>
 
 <script>
+<script>
+  const SUPABASE_URL = "https://tspmrlaslxgynfspchgz.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_SMiHRlZzMWCZgQ7Msqkgjg_k1olv68o";
+
   const openFormButton =
     document.getElementById("openFormButton");
 
@@ -484,19 +488,21 @@
   const cancelButton =
     document.getElementById("cancelButton");
 
-  const togglePaymentButton =
-    document.getElementById("togglePaymentButton");
-
-  const paymentArea =
-    document.getElementById("paymentArea");
-
   const saveButton =
     document.getElementById("saveButton");
 
+  const summaryAmount =
+    document.querySelector(".summary-amount");
+
+  const emptyArea =
+    document.querySelector(".empty");
+
+  const sectionTitle =
+    document.querySelector(".section-title");
+
+
   openFormButton.addEventListener("click", () => {
-
     formPanel.classList.add("open");
-
     openFormButton.style.display = "none";
 
     setTimeout(() => {
@@ -505,106 +511,261 @@
         block: "start"
       });
     }, 50);
-
   });
+
 
   cancelButton.addEventListener("click", () => {
-
     formPanel.classList.remove("open");
-
     openFormButton.style.display = "block";
-
-    paymentArea.classList.remove("open");
-
-    togglePaymentButton.textContent =
-      "＋ 希望支払い方法を指定する";
-
   });
 
-  togglePaymentButton.addEventListener("click", () => {
 
-    paymentArea.classList.toggle("open");
+  async function loadPayments() {
 
-    if (paymentArea.classList.contains("open")) {
+    try {
 
-      togglePaymentButton.textContent =
-        "－ 希望支払い方法を閉じる";
+      const response = await fetch(
+        SUPABASE_URL +
+        "/rest/v1/payments?select=*&order=created_at.desc",
+        {
+          headers: {
+            "apikey": SUPABASE_KEY
+          }
+        }
+      );
 
-    } else {
+      if (!response.ok) {
+        throw new Error(
+          "読み込みエラー: " + response.status
+        );
+      }
 
-      togglePaymentButton.textContent =
-        "＋ 希望支払い方法を指定する";
+      const payments = await response.json();
+
+      renderPayments(payments);
+
+    } catch (error) {
+
+      console.error(error);
+
+      emptyArea.innerHTML =
+        "<strong>データを読み込めませんでした</strong>" +
+        "通信状態を確認してください";
 
     }
+  }
 
-  });
 
-  saveButton.addEventListener("click", () => {
+  function renderPayments(payments) {
 
-    const requester =
-      document.getElementById("requester").value;
+    const activePayments =
+      payments.filter(payment =>
+        payment.status !== "送金済み" &&
+        payment.status !== "現金渡し済み"
+      );
 
-    const payer =
-      document.getElementById("payer").value;
+    const total =
+      activePayments.reduce(
+        (sum, payment) =>
+          sum + Number(payment.amount || 0),
+        0
+      );
 
-    const content =
-      document.getElementById("content").value.trim();
+    summaryAmount.textContent =
+      "¥" + total.toLocaleString("ja-JP");
 
-    const amount =
-      document.getElementById("amount").value;
 
-    const category =
-      document.getElementById("category").value;
+    if (payments.length === 0) {
 
-    const paymentMethod =
-      document.getElementById("paymentMethod").value;
+      emptyArea.innerHTML =
+        "<strong>まだ請求はありません</strong>" +
+        "「新しい請求を登録」から追加できます";
 
-    const memo =
-      document.getElementById("memo").value.trim();
-
-    if (!content) {
-      alert("内容を入力してください。");
       return;
     }
 
-    if (!amount || Number(amount) <= 0) {
-      alert("金額を入力してください。");
-      return;
+
+    emptyArea.innerHTML = "";
+
+    payments.forEach(payment => {
+
+      const item =
+        document.createElement("div");
+
+      item.style.textAlign = "left";
+      item.style.padding = "14px 0";
+      item.style.borderBottom =
+        "1px solid #ddd";
+
+      const paymentMethodText =
+        payment.payment_method
+          ? "／" + payment.payment_method
+          : "";
+
+      item.innerHTML =
+        "<strong>" +
+        payment.content +
+        "</strong>" +
+        "<div style='margin-top:5px'>" +
+        "¥" +
+        Number(payment.amount)
+          .toLocaleString("ja-JP") +
+        "　" +
+        payment.requester +
+        " → " +
+        payment.payer +
+        "</div>" +
+        "<div style='margin-top:4px;font-size:13px;color:#777'>" +
+        payment.category +
+        paymentMethodText +
+        "／" +
+        (payment.status || "請求中") +
+        "</div>";
+
+      emptyArea.appendChild(item);
+
+    });
+  }
+
+
+  saveButton.addEventListener(
+    "click",
+    async () => {
+
+      const requester =
+        document.getElementById("requester").value;
+
+      const payer =
+        document.getElementById("payer").value;
+
+      const content =
+        document.getElementById("content")
+          .value.trim();
+
+      const amount =
+        document.getElementById("amount").value;
+
+      const category =
+        document.getElementById("category").value;
+
+      const paymentMethod =
+        document.getElementById("paymentMethod")
+          .value;
+
+      const memo =
+        document.getElementById("memo")
+          .value.trim();
+
+
+      if (!content) {
+        alert("内容を入力してください。");
+        return;
+      }
+
+      if (!amount || Number(amount) <= 0) {
+        alert("金額を入力してください。");
+        return;
+      }
+
+      if (!category) {
+        alert("カテゴリーを選択してください。");
+        return;
+      }
+
+
+      saveButton.disabled = true;
+      saveButton.textContent = "登録中...";
+
+
+      try {
+
+        const response = await fetch(
+          SUPABASE_URL + "/rest/v1/payments",
+          {
+            method: "POST",
+
+            headers: {
+              "apikey": SUPABASE_KEY,
+              "Content-Type": "application/json",
+              "Prefer": "return=minimal"
+            },
+
+            body: JSON.stringify({
+              requester: requester,
+              payer: payer,
+              content: content,
+              amount: Number(amount),
+              category: category,
+              payment_method:
+                paymentMethod || null,
+              memo: memo || null,
+              status: "請求中"
+            })
+          }
+        );
+
+
+        if (!response.ok) {
+
+          const errorText =
+            await response.text();
+
+          throw new Error(errorText);
+
+        }
+
+
+        alert("請求を登録しました。");
+
+
+        document.getElementById("content")
+          .value = "";
+
+        document.getElementById("amount")
+          .value = "";
+
+        document.getElementById("category")
+          .value = "";
+
+        document.getElementById("paymentMethod")
+          .value = "";
+
+        document.getElementById("memo")
+          .value = "";
+
+
+        formPanel.classList.remove("open");
+
+        openFormButton.style.display =
+          "block";
+
+
+        await loadPayments();
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        alert(
+          "登録できませんでした。\n" +
+          "Supabase設定を確認してください。"
+        );
+
+      } finally {
+
+        saveButton.disabled = false;
+        saveButton.textContent = "登録する";
+
+      }
+
     }
+  );
 
-    if (!category) {
-      alert("カテゴリーを選択してください。");
-      return;
-    }
 
-    let message =
-      "入力内容を確認しました。\n\n" +
-      "請求する人：" + requester + "\n" +
-      "支払う人：" + payer + "\n" +
-      "内容：" + content + "\n" +
-      "金額：" +
-      Number(amount).toLocaleString("ja-JP") +
-      "円\n" +
-      "カテゴリー：" + category;
+  loadPayments();
 
-    if (paymentMethod) {
-      message +=
-        "\n希望支払い方法：" +
-        paymentMethod;
-    }
-
-    if (memo) {
-      message +=
-        "\nメモ：" +
-        memo;
-    }
-
-    message +=
-      "\n\n次の工程でSupabaseへ保存できるようにします。";
-
-    alert(message);
-
-  });
+</script>
 </script>
 
 </body>
