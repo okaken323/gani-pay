@@ -348,15 +348,16 @@
 
         <div class="field">
           <label for="amount">金額</label>
-　　　　　<input
-　　　　  id="amount"
-　　　　  name="gani-pay-new-amount-v2"
-　　　　  type="text"
-　　　　  inputmode="numeric"
-　　　　  pattern="[0-9]*"
-　　　　  autocomplete="off"
-　　　　  placeholder="例：1280"
-　　　　　>        </div>
+          <input
+            id="amount"
+            name="gani-pay-new-amount-v2"
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            autocomplete="off"
+            placeholder="例：1280"
+          >
+        </div>
 
       </div>
 
@@ -454,6 +455,59 @@
 
   const paymentList =
     document.getElementById("paymentList");
+
+
+  const requesterSelect =
+    document.getElementById("requester");
+
+  const payerSelect =
+    document.getElementById("payer");
+
+
+  function updatePayerOptions() {
+
+    const selectedRequester =
+      requesterSelect.value;
+
+    Array.from(payerSelect.options).forEach(
+      function (option) {
+
+        option.disabled =
+          option.value === selectedRequester;
+
+      }
+    );
+
+
+    if (payerSelect.value === selectedRequester) {
+
+      const nextOption =
+        Array.from(payerSelect.options).find(
+          function (option) {
+
+            return !option.disabled;
+
+          }
+        );
+
+
+      if (nextOption) {
+
+        payerSelect.value =
+          nextOption.value;
+
+      }
+    }
+  }
+
+
+  requesterSelect.addEventListener(
+    "change",
+    updatePayerOptions
+  );
+
+
+  updatePayerOptions();
 
 
   openFormButton.addEventListener(
@@ -698,6 +752,16 @@
         document.getElementById(
           "memo"
         ).value.trim();
+
+
+      if (requester === payer) {
+
+        alert(
+          "請求する人と支払う人は別の人を選んでください。"
+        );
+
+        return;
+      }
 
 
       if (!content) {
