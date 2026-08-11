@@ -778,23 +778,22 @@
           "</div>" +
 
 
-          "<div class='payment-sub'>" +
-
-          escapeHtml(
-            payment.category || ""
-          ) +
-
-          paymentMethodText +
-
-          "／" +
-
-          escapeHtml(
-            payment.status ||
-            "請求中"
-          ) +
-
-          "</div>" +
-
+         "<div class='payment-sub'>" +
+  (payment.created_at
+    ? new Date(payment.created_at).toLocaleDateString("ja-JP")
+    : "") +
+  "<br>" +
+  escapeHtml(
+    payment.category || ""
+  ) +
+  "／" +
+  paymentMethodText +
+  "／" +
+  escapeHtml(
+    payment.status ||
+    "請求中"
+  ) +
+"</div>" +
           memoText;
 
 
