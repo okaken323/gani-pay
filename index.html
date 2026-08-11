@@ -8,9 +8,9 @@
   <title>Gani Pay</title>
 
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="icon-512.png?v=16">
+  <link rel="icon" type="image/png" href="icon-512.png?v=17">
   <link rel="apple-touch-icon" sizes="180x180"
-        href="/gani-pay/icon-180.png?v=16">
+        href="/gani-pay/icon-180.png?v=17">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Gani Pay">
@@ -232,6 +232,100 @@
       border-bottom: 0;
     }
 
+    .payment-row {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .payment-check-wrap {
+      padding-top: 2px;
+    }
+
+    .payment-check {
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      accent-color: #000;
+      cursor: pointer;
+    }
+
+    .payment-check:disabled {
+      cursor: default;
+      opacity: 0.25;
+    }
+
+    .bulk-panel {
+      display: none;
+      background: #f7f7f7;
+      border: 1px solid #e2e2e2;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .bulk-panel.show {
+      display: block;
+    }
+
+    .bulk-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .select-all-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .select-all-label input {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: #000;
+    }
+
+    .selected-count {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .bulk-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .bulk-button {
+      border: 1px solid #bbb;
+      background: #fff;
+      color: #111;
+      border-radius: 10px;
+      padding: 11px 8px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .bulk-button.primary {
+      border-color: #000;
+      background: #000;
+      color: #fff;
+    }
+
+    .bulk-button:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
     .payment-title {
       font-size: 16px;
       font-weight: 800;
@@ -431,6 +525,26 @@
       請求一覧
     </div>
 
+    <div class="bulk-panel" id="bulkPanel">
+      <div class="bulk-top">
+        <label class="select-all-label">
+          <input type="checkbox" id="selectAll">
+          すべて選択
+        </label>
+        <div class="selected-count" id="selectedCount">0件選択</div>
+      </div>
+
+      <div class="bulk-buttons">
+        <button class="bulk-button primary" id="markTransferButton" type="button" disabled>
+          送金済みにする
+        </button>
+
+        <button class="bulk-button" id="markCashButton" type="button" disabled>
+          現金渡し済みにする
+        </button>
+      </div>
+    </div>
+
     <div class="empty" id="paymentList">
 
       <div class="empty-message">
@@ -474,6 +588,24 @@
 
   const payerSelect =
     document.getElementById("payer");
+
+  const bulkPanel =
+    document.getElementById("bulkPanel");
+
+  const selectAll =
+    document.getElementById("selectAll");
+
+  const selectedCount =
+    document.getElementById("selectedCount");
+
+  const markTransferButton =
+    document.getElementById("markTransferButton");
+
+  const markCashButton =
+    document.getElementById("markCashButton");
+
+  let currentPayments = [];
+  const selectedPaymentIds = new Set();
 
 
   const people = [
@@ -620,6 +752,16 @@
         await response.json();
 
 
+      currentPayments =
+        payments;
+
+
+      selectedPaymentIds.clear();
+
+
+      updateBulkControls();
+
+
       renderPayments(
         payments
       );
@@ -689,6 +831,12 @@
       );
 
 
+    bulkPanel.classList.toggle(
+      "show",
+      activePayments.length > 0
+    );
+
+
     if (payments.length === 0) {
 
       paymentList.innerHTML =
@@ -718,6 +866,11 @@
           "payment-item";
 
 
+        const isPaid =
+          payment.status === "送金済み" ||
+          payment.status === "現金渡し済み";
+
+
         const paymentMethodText =
           payment.payment_method
 
@@ -742,7 +895,49 @@
             : "";
 
 
+        const checked =
+          selectedPaymentIds.has(
+            String(payment.id)
+          )
+
+            ? " checked"
+
+            : "";
+
+
+        const disabled =
+          isPaid
+
+            ? " disabled"
+
+            : "";
+
+
         item.innerHTML =
+
+          "<div class='payment-row'>" +
+
+          "<div class='payment-check-wrap'>" +
+
+          "<input class='payment-check' type='checkbox' " +
+
+          "data-payment-id='" +
+          escapeHtml(
+            String(payment.id)
+          ) +
+          "'" +
+
+          checked +
+
+          disabled +
+
+          ">" +
+
+          "</div>" +
+
+
+          "<div>" +
+
 
           "<div class='payment-title'>" +
 
@@ -778,23 +973,44 @@
           "</div>" +
 
 
-         "<div class='payment-sub'>" +
-  (payment.created_at
-    ? new Date(payment.created_at).toLocaleDateString("ja-JP")
-    : "") +
-  "<br>" +
-  escapeHtml(
-    payment.category || ""
-  ) +
-  "／" +
-  paymentMethodText +
-  "／" +
-  escapeHtml(
-    payment.status ||
-    "請求中"
-  ) +
-"</div>" +
-          memoText;
+          "<div class='payment-sub'>" +
+
+          (
+            payment.created_at
+
+              ? new Date(
+                  payment.created_at
+                ).toLocaleDateString(
+                  "ja-JP"
+                )
+
+              : ""
+          ) +
+
+          "<br>" +
+
+          escapeHtml(
+            payment.category || ""
+          ) +
+
+          paymentMethodText +
+
+          "／" +
+
+          escapeHtml(
+            payment.status ||
+            "請求中"
+          ) +
+
+          "</div>" +
+
+
+          memoText +
+
+
+          "</div>" +
+
+          "</div>";
 
 
         paymentList.appendChild(
@@ -803,6 +1019,438 @@
 
       }
     );
+
+
+    document.querySelectorAll(
+      ".payment-check:not(:disabled)"
+    ).forEach(
+
+      function (checkbox) {
+
+        checkbox.addEventListener(
+          "change",
+
+          function () {
+
+            const id =
+              String(
+                checkbox.dataset.paymentId
+              );
+
+
+            if (checkbox.checked) {
+
+              selectedPaymentIds.add(
+                id
+              );
+
+            } else {
+
+              selectedPaymentIds.delete(
+                id
+              );
+
+            }
+
+
+            updateBulkControls();
+
+          }
+        );
+
+      }
+
+    );
+
+
+    updateBulkControls();
+
+  }
+
+
+  function updateBulkControls() {
+
+    const activePayments =
+      currentPayments.filter(
+
+        function (payment) {
+
+          return (
+
+            payment.status !== "送金済み" &&
+            payment.status !== "現金渡し済み"
+
+          );
+
+        }
+
+      );
+
+
+    const activeIds =
+      activePayments.map(
+
+        function (payment) {
+
+          return String(
+            payment.id
+          );
+
+        }
+
+      );
+
+
+    Array.from(
+      selectedPaymentIds
+    ).forEach(
+
+      function (id) {
+
+        if (
+          !activeIds.includes(
+            id
+          )
+        ) {
+
+          selectedPaymentIds.delete(
+            id
+          );
+
+        }
+
+      }
+
+    );
+
+
+    const count =
+      selectedPaymentIds.size;
+
+
+    selectedCount.textContent =
+      count +
+      "件選択";
+
+
+    markTransferButton.disabled =
+      count === 0;
+
+
+    markCashButton.disabled =
+      count === 0;
+
+
+    selectAll.checked =
+
+      activeIds.length > 0 &&
+
+      activeIds.every(
+
+        function (id) {
+
+          return selectedPaymentIds.has(
+            id
+          );
+
+        }
+
+      );
+
+
+    selectAll.indeterminate =
+
+      count > 0 &&
+
+      !selectAll.checked;
+
+  }
+
+
+  selectAll.addEventListener(
+    "change",
+
+    function () {
+
+      const activePayments =
+        currentPayments.filter(
+
+          function (payment) {
+
+            return (
+
+              payment.status !== "送金済み" &&
+              payment.status !== "現金渡し済み"
+
+            );
+
+          }
+
+        );
+
+
+      if (
+        selectAll.checked
+      ) {
+
+        activePayments.forEach(
+
+          function (payment) {
+
+            selectedPaymentIds.add(
+              String(
+                payment.id
+              )
+            );
+
+          }
+
+        );
+
+      } else {
+
+        selectedPaymentIds.clear();
+
+      }
+
+
+      renderPayments(
+        currentPayments
+      );
+
+    }
+  );
+
+
+  markTransferButton.addEventListener(
+    "click",
+
+    function () {
+
+      markSelectedAsPaid(
+        "送金済み"
+      );
+
+    }
+  );
+
+
+  markCashButton.addEventListener(
+    "click",
+
+    function () {
+
+      markSelectedAsPaid(
+        "現金渡し済み"
+      );
+
+    }
+  );
+
+
+  async function markSelectedAsPaid(status) {
+
+    const ids =
+      Array.from(
+        selectedPaymentIds
+      );
+
+
+    if (
+      ids.length === 0
+    ) {
+
+      return;
+
+    }
+
+
+    const label =
+
+      status === "送金済み"
+
+        ? "送金済み"
+
+        : "現金渡し済み";
+
+
+    const ok =
+      confirm(
+
+        ids.length +
+
+        "件を「" +
+
+        label +
+
+        "」にしますか？"
+
+      );
+
+
+    if (
+      !ok
+    ) {
+
+      return;
+
+    }
+
+
+    markTransferButton.disabled =
+      true;
+
+
+    markCashButton.disabled =
+      true;
+
+
+    markTransferButton.textContent =
+      "更新中...";
+
+
+    markCashButton.textContent =
+      "更新中...";
+
+
+    try {
+
+      const results =
+        await Promise.all(
+
+          ids.map(
+
+            async function (id) {
+
+              const response =
+                await fetch(
+
+                  SUPABASE_URL +
+
+                  "/rest/v1/payments?id=eq." +
+
+                  encodeURIComponent(
+                    id
+                  ),
+
+                  {
+                    method:
+                      "PATCH",
+
+                    headers: {
+
+                      "apikey":
+                        SUPABASE_KEY,
+
+                      "Content-Type":
+                        "application/json",
+
+                      "Prefer":
+                        "return=minimal"
+
+                    },
+
+                    body:
+                      JSON.stringify({
+
+                        status:
+                          status
+
+                      })
+
+                  }
+
+                );
+
+
+              if (
+                !response.ok
+              ) {
+
+                const errorText =
+                  await response.text();
+
+
+                throw new Error(
+
+                  response.status +
+
+                  " " +
+
+                  errorText
+
+                );
+
+              }
+
+
+              return true;
+
+            }
+
+          )
+
+        );
+
+
+      if (
+        results.length > 0
+      ) {
+
+        alert(
+
+          ids.length +
+
+          "件を「" +
+
+          label +
+
+          "」にしました。"
+
+        );
+
+      }
+
+
+      selectedPaymentIds.clear();
+
+
+      await loadPayments();
+
+
+    } catch (error) {
+
+      console.error(
+
+        "支払い済み更新エラー:",
+
+        error
+
+      );
+
+
+      alert(
+
+        "支払い状態を更新できませんでした。\n" +
+
+        "SupabaseのUPDATE権限を確認してください。"
+
+      );
+
+
+    } finally {
+
+      markTransferButton.textContent =
+        "送金済みにする";
+
+
+      markCashButton.textContent =
+        "現金渡し済みにする";
+
+
+      updateBulkControls();
+
+    }
 
   }
 
@@ -841,6 +1489,7 @@
 
   saveButton.addEventListener(
     "click",
+
     async function () {
 
       const requester =
@@ -885,7 +1534,9 @@
         ).value.trim();
 
 
-      if (requester === payer) {
+      if (
+        requester === payer
+      ) {
 
         alert(
           "請求する人と支払う人は別の人を選んでください。"
@@ -896,7 +1547,9 @@
       }
 
 
-      if (!content) {
+      if (
+        !content
+      ) {
 
         alert(
           "内容を入力してください。"
@@ -921,7 +1574,9 @@
       }
 
 
-      if (!category) {
+      if (
+        !category
+      ) {
 
         alert(
           "カテゴリーを選択してください。"
@@ -934,6 +1589,7 @@
 
       saveButton.disabled =
         true;
+
 
       saveButton.textContent =
         "登録中...";
@@ -1001,7 +1657,9 @@
           );
 
 
-        if (!response.ok) {
+        if (
+          !response.ok
+        ) {
 
           const errorText =
             await response.text();
@@ -1010,7 +1668,9 @@
           throw new Error(
 
             response.status +
+
             " " +
+
             errorText
 
           );
@@ -1063,14 +1723,18 @@
       } catch (error) {
 
         console.error(
+
           "登録エラー:",
+
           error
+
         );
 
 
         alert(
 
           "登録できませんでした。\n" +
+
           "Supabase接続を確認してください。"
 
         );
