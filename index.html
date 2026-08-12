@@ -8,9 +8,9 @@
   <title>Gani Pay</title>
 
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="icon-512.png?v=17">
+  <link rel="icon" type="image/png" href="icon-512.png?v=18">
   <link rel="apple-touch-icon" sizes="180x180"
-        href="/gani-pay/icon-180.png?v=17">
+        href="/gani-pay/icon-180.png?v=18">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Gani Pay">
@@ -326,6 +326,28 @@
       cursor: default;
     }
 
+    .payment-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .item-action-button {
+      border: 1px solid #bbb;
+      background: #fff;
+      color: #111;
+      border-radius: 9px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .item-action-button.delete {
+      color: #b00020;
+      border-color: #d7a0a8;
+    }
+
     .payment-title {
       font-size: 16px;
       font-weight: 800;
@@ -406,7 +428,7 @@
 
     <div class="form-panel" id="formPanel">
 
-      <div class="form-title">
+      <div class="form-title" id="formTitle">
         新しい請求
       </div>
 
@@ -577,6 +599,9 @@
   const saveButton =
     document.getElementById("saveButton");
 
+  const formTitle =
+    document.getElementById("formTitle");
+
   const summaryAmount =
     document.getElementById("summaryAmount");
 
@@ -606,6 +631,7 @@
 
   let currentPayments = [];
   const selectedPaymentIds = new Set();
+  let editingPaymentId = null;
 
 
   const people = [
@@ -677,9 +703,102 @@
   updatePayerOptions();
 
 
+  function resetForm() {
+
+    editingPaymentId = null;
+
+    formTitle.textContent =
+      "新しい請求";
+
+    saveButton.textContent =
+      "登録する";
+
+    document.getElementById("requester").value =
+      "謙二";
+
+    updatePayerOptions();
+
+    document.getElementById("content").value =
+      "";
+
+    document.getElementById("amount").value =
+      "";
+
+    document.getElementById("category").value =
+      "";
+
+    document.getElementById("paymentMethod").value =
+      "";
+
+    document.getElementById("memo").value =
+      "";
+
+  }
+
+
+  function openEditForm(paymentId) {
+
+    const payment =
+      currentPayments.find(function (item) {
+        return String(item.id) === String(paymentId);
+      });
+
+    if (!payment) {
+      alert("編集する請求が見つかりませんでした。");
+      return;
+    }
+
+    editingPaymentId =
+      String(payment.id);
+
+    formTitle.textContent =
+      "請求を編集";
+
+    saveButton.textContent =
+      "更新する";
+
+    requesterSelect.value =
+      payment.requester || "謙二";
+
+    updatePayerOptions();
+
+    if (Array.from(payerSelect.options).some(function (option) {
+      return option.value === payment.payer;
+    })) {
+      payerSelect.value = payment.payer;
+    }
+
+    document.getElementById("content").value =
+      payment.content || "";
+
+    document.getElementById("amount").value =
+      payment.amount ?? "";
+
+    document.getElementById("category").value =
+      payment.category || "";
+
+    document.getElementById("paymentMethod").value =
+      payment.payment_method || "";
+
+    document.getElementById("memo").value =
+      payment.memo || "";
+
+    formPanel.classList.add("open");
+    openFormButton.style.display = "none";
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+  }
+
+
   openFormButton.addEventListener(
     "click",
     function () {
+
+      resetForm();
 
       formPanel.classList.add("open");
 
@@ -698,6 +817,8 @@
 
       openFormButton.style.display =
         "block";
+
+      resetForm();
 
     }
   );
@@ -1007,6 +1128,18 @@
 
           memoText +
 
+          "<div class='payment-actions'>" +
+
+          "<button type='button' class='item-action-button edit-payment-button' data-payment-id='" +
+          escapeHtml(String(payment.id)) +
+          "'>編集</button>" +
+
+          "<button type='button' class='item-action-button delete delete-payment-button' data-payment-id='" +
+          escapeHtml(String(payment.id)) +
+          "'>削除</button>" +
+
+          "</div>" +
+
 
           "</div>" +
 
@@ -1063,7 +1196,105 @@
     );
 
 
+    document.querySelectorAll(
+      ".edit-payment-button"
+    ).forEach(function (button) {
+
+      button.addEventListener(
+        "click",
+        function () {
+          openEditForm(button.dataset.paymentId);
+        }
+      );
+
+    });
+
+
+    document.querySelectorAll(
+      ".delete-payment-button"
+    ).forEach(function (button) {
+
+      button.addEventListener(
+        "click",
+        function () {
+          deletePayment(button.dataset.paymentId);
+        }
+      );
+
+    });
+
+
     updateBulkControls();
+
+  }
+
+
+  async function deletePayment(paymentId) {
+
+    const payment =
+      currentPayments.find(function (item) {
+        return String(item.id) === String(paymentId);
+      });
+
+    if (!payment) {
+      alert("削除する請求が見つかりませんでした。");
+      return;
+    }
+
+    const ok =
+      confirm(
+        "「" +
+        (payment.content || "この請求") +
+        "」を削除しますか？\nこの操作は元に戻せません。"
+      );
+
+    if (!ok) {
+      return;
+    }
+
+    try {
+
+      const response =
+        await fetch(
+          SUPABASE_URL +
+          "/rest/v1/payments?id=eq." +
+          encodeURIComponent(paymentId),
+          {
+            method: "DELETE",
+            headers: {
+              "apikey": SUPABASE_KEY,
+              "Prefer": "return=minimal"
+            }
+          }
+        );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(response.status + " " + errorText);
+      }
+
+      if (String(editingPaymentId) === String(paymentId)) {
+        formPanel.classList.remove("open");
+        openFormButton.style.display = "block";
+        resetForm();
+      }
+
+      selectedPaymentIds.delete(String(paymentId));
+
+      alert("請求を削除しました。");
+
+      await loadPayments();
+
+    } catch (error) {
+
+      console.error("削除エラー:", error);
+
+      alert(
+        "削除できませんでした。\n" +
+        "SupabaseのDELETE権限を確認してください。"
+      );
+
+    }
 
   }
 
@@ -1592,120 +1823,82 @@
 
 
       saveButton.textContent =
-        "登録中...";
+        editingPaymentId
+          ? "更新中..."
+          : "登録中...";
 
 
       try {
 
-        const response =
-          await fetch(
+        const payload = {
+          requester: requester,
+          payer: payer,
+          content: content,
+          amount: Number(amount),
+          category: category,
+          payment_method: paymentMethod || null,
+          memo: memo || null
+        };
 
-            SUPABASE_URL +
-            "/rest/v1/payments",
+        let response;
 
-            {
-              method:
-                "POST",
+        if (editingPaymentId) {
 
-              headers: {
+          response =
+            await fetch(
+              SUPABASE_URL +
+              "/rest/v1/payments?id=eq." +
+              encodeURIComponent(editingPaymentId),
+              {
+                method: "PATCH",
+                headers: {
+                  "apikey": SUPABASE_KEY,
+                  "Content-Type": "application/json",
+                  "Prefer": "return=minimal"
+                },
+                body: JSON.stringify(payload)
+              }
+            );
 
-                "apikey":
-                  SUPABASE_KEY,
+        } else {
 
-                "Content-Type":
-                  "application/json",
+          payload.status = "請求中";
 
-                "Prefer":
-                  "return=minimal"
+          response =
+            await fetch(
+              SUPABASE_URL +
+              "/rest/v1/payments",
+              {
+                method: "POST",
+                headers: {
+                  "apikey": SUPABASE_KEY,
+                  "Content-Type": "application/json",
+                  "Prefer": "return=minimal"
+                },
+                body: JSON.stringify(payload)
+              }
+            );
 
-              },
+        }
 
-
-              body:
-                JSON.stringify({
-
-                  requester:
-                    requester,
-
-                  payer:
-                    payer,
-
-                  content:
-                    content,
-
-                  amount:
-                    Number(amount),
-
-                  category:
-                    category,
-
-                  payment_method:
-                    paymentMethod ||
-                    null,
-
-                  memo:
-                    memo ||
-                    null,
-
-                  status:
-                    "請求中"
-
-                })
-
-            }
-
-          );
-
-
-        if (
-          !response.ok
-        ) {
+        if (!response.ok) {
 
           const errorText =
             await response.text();
 
-
           throw new Error(
-
             response.status +
-
             " " +
-
             errorText
-
           );
 
         }
 
-
         alert(
-          "請求を登録しました。"
+          editingPaymentId
+            ? "請求を更新しました。"
+            : "請求を登録しました。"
         );
-
-
-        document.getElementById(
-          "content"
-        ).value = "";
-
-
-        document.getElementById(
-          "amount"
-        ).value = "";
-
-
-        document.getElementById(
-          "category"
-        ).value = "";
-
-
-        document.getElementById(
-          "paymentMethod"
-        ).value = "";
-
-
-        document.getElementById(
-          "memo"
-        ).value = "";
 
 
         formPanel.classList.remove(
@@ -1717,25 +1910,25 @@
           "block";
 
 
+        resetForm();
+
+
         await loadPayments();
 
 
       } catch (error) {
 
         console.error(
-
-          "登録エラー:",
-
+          "保存エラー:",
           error
-
         );
 
 
         alert(
 
-          "登録できませんでした。\n" +
+          "保存できませんでした。\n" +
 
-          "Supabase接続を確認してください。"
+          "Supabase接続とUPDATE権限を確認してください。"
 
         );
 
@@ -1747,7 +1940,9 @@
 
 
         saveButton.textContent =
-          "登録する";
+          editingPaymentId
+            ? "更新する"
+            : "登録する";
 
       }
 
