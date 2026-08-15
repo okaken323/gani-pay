@@ -8,9 +8,9 @@
   <title>Gani Pay</title>
 
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="icon-512.png?v=19">
+  <link rel="icon" type="image/png" href="icon-512.png?v=20">
   <link rel="apple-touch-icon" sizes="180x180"
-        href="/gani-pay/icon-180.png?v=19">
+        href="/gani-pay/icon-180.png?v=20">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Gani Pay">
@@ -410,6 +410,31 @@
       font-weight: 700;
     }
 
+    .family-card-section {
+      margin-top: 24px;
+    }
+
+    .family-card-title {
+      margin: 0 0 12px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .family-card-badge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e9e9e9;
+      color: #555;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
     .error-message {
       color: #b00020;
       text-align: center;
@@ -468,19 +493,19 @@
     </div>
 
     <button class="new-button" id="openFormButton">
-      ＋ 新しい請求を登録
+      ＋ 新しい登録
     </button>
 
     <div class="form-panel" id="formPanel">
 
       <div class="form-title" id="formTitle">
-        新しい請求
+        新しい登録
       </div>
 
       <div class="two-column">
 
         <div class="field">
-          <label for="requester">請求する人</label>
+          <label for="requester" id="requesterLabel">請求する人</label>
           <select id="requester">
             <option value="謙二">謙二</option>
             <option value="理恵">理恵</option>
@@ -488,7 +513,7 @@
           </select>
         </div>
 
-        <div class="field">
+        <div class="field" id="payerField">
           <label for="payer">支払う人</label>
           <select id="payer"></select>
         </div>
@@ -549,6 +574,7 @@
           <option value="PayPay">PayPay</option>
           <option value="現金">現金</option>
           <option value="その他">その他</option>
+          <option value="家族カード">家族カード</option>
         </select>
       </div>
 
@@ -632,6 +658,18 @@
       </div>
     </div>
 
+    <div class="family-card-section" id="familyCardSection">
+      <div class="family-card-title">
+        家族カード（<span id="familyCardCount">0</span>件）
+      </div>
+
+      <div class="list-box" id="familyCardList">
+        <div class="empty-message">
+          <strong>家族カード利用はありません</strong>
+        </div>
+      </div>
+    </div>
+
     <button
       class="paid-toggle-button"
       id="paidToggleButton"
@@ -708,6 +746,24 @@
   const payerSelect =
     document.getElementById("payer");
 
+  const requesterLabel =
+    document.getElementById("requesterLabel");
+
+  const payerField =
+    document.getElementById("payerField");
+
+  const paymentMethodSelect =
+    document.getElementById("paymentMethod");
+
+  const familyCardSection =
+    document.getElementById("familyCardSection");
+
+  const familyCardList =
+    document.getElementById("familyCardList");
+
+  const familyCardCount =
+    document.getElementById("familyCardCount");
+
   const bulkPanel =
     document.getElementById("bulkPanel");
 
@@ -748,6 +804,35 @@
     );
 
   }
+
+
+  function isFamilyCardPayment(payment) {
+
+    return payment.card_payment === true;
+
+  }
+
+
+  function updateFormForPaymentType() {
+
+    const isFamilyCard =
+      paymentMethodSelect.value === "家族カード";
+
+    requesterLabel.textContent =
+      isFamilyCard ? "利用者" : "請求する人";
+
+    payerField.classList.toggle(
+      "hidden",
+      isFamilyCard
+    );
+
+  }
+
+
+  paymentMethodSelect.addEventListener(
+    "change",
+    updateFormForPaymentType
+  );
 
 
   function updatePayerOptions() {
@@ -820,7 +905,7 @@
       null;
 
     formTitle.textContent =
-      "新しい請求";
+      "新しい登録";
 
     saveButton.textContent =
       "登録する";
@@ -845,6 +930,8 @@
     document.getElementById(
       "paymentMethod"
     ).value = "";
+
+    updateFormForPaymentType();
 
     document.getElementById(
       "memo"
@@ -883,7 +970,7 @@
       String(payment.id);
 
     formTitle.textContent =
-      "請求を編集";
+      "登録を編集";
 
     saveButton.textContent =
       "更新する";
@@ -937,6 +1024,8 @@
       "paymentMethod"
     ).value =
       payment.payment_method || "";
+
+    updateFormForPaymentType();
 
     document.getElementById(
       "memo"
@@ -1022,6 +1111,9 @@
     paidPaymentList.innerHTML =
       "";
 
+    familyCardList.innerHTML =
+      "";
+
 
     try {
 
@@ -1094,7 +1186,20 @@
       payments.filter(
         function (payment) {
 
-          return !isPaidPayment(
+          return (
+            !isPaidPayment(payment) &&
+            !isFamilyCardPayment(payment)
+          );
+
+        }
+      );
+
+
+    const familyCardPayments =
+      payments.filter(
+        function (payment) {
+
+          return isFamilyCardPayment(
             payment
           );
 
@@ -1106,8 +1211,9 @@
       payments.filter(
         function (payment) {
 
-          return isPaidPayment(
-            payment
+          return (
+            isPaidPayment(payment) &&
+            !isFamilyCardPayment(payment)
           );
 
         }
@@ -1140,15 +1246,27 @@
     paidCount.textContent =
       paidPayments.length;
 
+    familyCardCount.textContent =
+      familyCardPayments.length;
+
 
     bulkPanel.classList.toggle(
       "show",
       activePayments.length > 0
     );
 
+    familyCardSection.classList.toggle(
+      "hidden",
+      familyCardPayments.length === 0
+    );
+
 
     renderActivePayments(
       activePayments
+    );
+
+    renderFamilyCardPayments(
+      familyCardPayments
     );
 
     renderPaidPayments(
@@ -1355,6 +1473,112 @@
 
     attachActionEvents(
       activePaymentList
+    );
+
+  }
+
+
+  function renderFamilyCardPayments(
+    payments
+  ) {
+
+    if (payments.length === 0) {
+
+      familyCardList.innerHTML =
+        '<div class="empty-message">' +
+        '<strong>家族カード利用はありません</strong>' +
+        '</div>';
+
+      return;
+
+    }
+
+
+    familyCardList.innerHTML =
+      "";
+
+
+    payments.forEach(
+      function (payment) {
+
+        const item =
+          document.createElement(
+            "div"
+          );
+
+        item.className =
+          "payment-item";
+
+
+        const memoText =
+          payment.memo
+
+            ? "<div class='payment-sub'>" +
+              "メモ：" +
+              escapeHtml(
+                payment.memo
+              ) +
+              "</div>"
+
+            : "";
+
+
+        item.innerHTML =
+
+          "<div class='paid-payment-row'>" +
+
+          "<div class='payment-title'>" +
+          escapeHtml(
+            payment.content || ""
+          ) +
+          "</div>" +
+
+          "<div class='payment-main'>" +
+          "¥" +
+          Number(
+            payment.amount || 0
+          ).toLocaleString(
+            "ja-JP"
+          ) +
+          "　利用者：" +
+          escapeHtml(
+            payment.requester || ""
+          ) +
+          "</div>" +
+
+          "<div class='payment-sub'>" +
+          formatDate(
+            payment.created_at
+          ) +
+          "<br>" +
+          escapeHtml(
+            payment.category || ""
+          ) +
+          "</div>" +
+
+          "<div class='family-card-badge'>" +
+          "家族カード・請求なし" +
+          "</div>" +
+
+          memoText +
+
+          createActionButtons(
+            payment.id
+          ) +
+
+          "</div>";
+
+
+        familyCardList.appendChild(
+          item
+        );
+
+      }
+    );
+
+
+    attachActionEvents(
+      familyCardList
     );
 
   }
@@ -1620,7 +1844,7 @@
     if (!payment) {
 
       alert(
-        "削除する請求が見つかりませんでした。"
+        "削除する登録が見つかりませんでした。"
       );
 
       return;
@@ -1723,7 +1947,7 @@
 
 
       alert(
-        "請求を削除しました。"
+        "登録を削除しました。"
       );
 
 
@@ -1757,8 +1981,9 @@
       currentPayments.filter(
         function (payment) {
 
-          return !isPaidPayment(
-            payment
+          return (
+            !isPaidPayment(payment) &&
+            !isFamilyCardPayment(payment)
           );
 
         }
@@ -2208,30 +2433,19 @@
 
       try {
 
-        const payload = {
+const isFamilyCard =
+  paymentMethod === "家族カード";
 
-          requester:
-            requester,
-
-          payer:
-            payer,
-
-          content:
-            content,
-
-          amount:
-            Number(amount),
-
-          category:
-            category,
-
-          payment_method:
-            paymentMethod || null,
-
-          memo:
-            memo || null
-
-        };
+const payload = {
+  requester: requester,
+  payer: payer,
+  content: content,
+  amount: Number(amount),
+  category: category,
+  payment_method: paymentMethod || null,
+  memo: memo || null,
+  card_payment: isFamilyCard
+};
 
 
         let response;
@@ -2239,39 +2453,56 @@
 
         if (isEditing) {
 
+          const existingPayment =
+            currentPayments.find(
+              function (payment) {
+
+                return (
+                  String(payment.id) ===
+                  String(editingPaymentId)
+                );
+
+              }
+            );
+
+
+          if (isFamilyCard) {
+
+            payload.status =
+              "家族カード利用";
+
+          } else if (
+            existingPayment &&
+            existingPayment.card_payment
+          ) {
+
+            payload.status =
+              "請求中";
+
+          }
+
+
           response =
             await fetch(
 
               SUPABASE_URL +
-
               "/rest/v1/payments?id=eq." +
-
               encodeURIComponent(
                 editingPaymentId
               ),
 
               {
-                method:
-                  "PATCH",
+                method: "PATCH",
 
                 headers: {
-
-                  "apikey":
-                    SUPABASE_KEY,
-
-                  "Content-Type":
-                    "application/json",
-
-                  "Prefer":
-                    "return=minimal"
-
+                  "apikey": SUPABASE_KEY,
+                  "Content-Type": "application/json",
+                  "Prefer": "return=minimal"
                 },
 
-                body:
-                  JSON.stringify(
-                    payload
-                  )
-
+                body: JSON.stringify(
+                  payload
+                )
               }
 
             );
@@ -2279,7 +2510,9 @@
         } else {
 
           payload.status =
-            "請求中";
+            isFamilyCard
+              ? "家族カード利用"
+              : "請求中";
 
 
           response =
@@ -2289,27 +2522,17 @@
               "/rest/v1/payments",
 
               {
-                method:
-                  "POST",
+                method: "POST",
 
                 headers: {
-
-                  "apikey":
-                    SUPABASE_KEY,
-
-                  "Content-Type":
-                    "application/json",
-
-                  "Prefer":
-                    "return=minimal"
-
+                  "apikey": SUPABASE_KEY,
+                  "Content-Type": "application/json",
+                  "Prefer": "return=minimal"
                 },
 
-                body:
-                  JSON.stringify(
-                    payload
-                  )
-
+                body: JSON.stringify(
+                  payload
+                )
               }
 
             );
@@ -2339,9 +2562,9 @@
 
           isEditing
 
-            ? "請求を更新しました。"
+            ? "登録を更新しました。"
 
-            : "請求を登録しました."
+            : "登録しました。"
 
         );
 
@@ -2388,6 +2611,8 @@
     }
   );
 
+
+  updateFormForPaymentType();
 
   loadPayments();
 
